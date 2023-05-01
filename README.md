@@ -47,7 +47,7 @@ The variable disp_port is for portrait, and the variable disp_port is for landsc
 ----------------------------------------------------------------
 
 ## GitHub Pages (This Document)
-* [https://git.bokunimo.com/pico/](https://git.bokunimo.com/oled/)  
+* [https://git.bokunimo.com/oled/](https://git.bokunimo.com/oled/)  
 
 ----------------------------------------------------------------
 
