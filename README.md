@@ -1,6 +1,6 @@
 # oled
 
-OLED Device Driver SSD1306 and SSD1309 for Raspberry Pi and Raspberry Pi Pico  
+OLED SSD1306 and SSD1309 Device Driver for Raspberry Pi and Raspberry Pi Pico  
 
 ![Schematic1](https://bokunimo.net/blog/wp-content/uploads/2023/05/DSC_2650wd.jpg)  
 
