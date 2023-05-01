@@ -27,6 +27,23 @@ Fig. 2; schematic of reset circuit:
 Fig. 3; R9 is removed, and R8 and R4 are soldered:
 ![Schematic2](https://bokunimo.net/blog/wp-content/uploads/2023/04/DSC_2612w.jpg)  
 
+## Usage, Download and Display Contents
+
+	pi@raspberrypi:~ $ git clone https://bokunimo.net/git/oled ⏎  
+	pi@raspberrypi:~ $ cd oled/raspi ⏎  
+	pi@raspberrypi:~/oled/raspi $ ls -1 ⏎  
+	misaki.fnt  ............. Misaki Fonts on FONTX2 format
+	misaki_README.txt  ...... LICENSE text for Misaki Fonts
+	test_oled.py  ........... Program for ASCII Character 
+	test_oled_kanji.py  ..... Program for Japanese Character
+	  
+	pi@raspberrypi:~ $ ./test_oled_kanji.py ⏎  
+
+## How to change the text
+
+"disp_port" and "disp_land" in this program are variables for the characters on the display.
+The variable disp_port is for portrait, and the variable disp_port is for landscape view.
+
 ----------------------------------------------------------------
 
 ## GitHub Pages (This Document)
