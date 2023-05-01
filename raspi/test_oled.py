@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# Raspberry Pi の動作確認 I2C OLED SD1306 に文字を表示する
+# Raspberry Pi の動作確認 I2C OLED SSD1306 に文字を表示する
 # Copyright (c) 2023 Wataru KUNINO
 
 ##############################
-# SD1306  # RasPi # GPIO
+# SSD1306 # RasPi # GPIO
 ##############################
 #    SDA  #   3   # GP4
 #    SCL  #   5   # GP5
@@ -27,7 +27,7 @@ disp_land = [\
 '                ','by Wataru KUNINO',\
 ]
 
-sd1306 = 0x3C                           # OLED SD1306のI2Cアドレス
+ssd1306 = 0x3C                           # OLED SSD1306のI2Cアドレス
 d_mode_i = 0x00
 d_mode_w = 0x40
 d_init = b'\xAE\xD5\x80\x8D\x14\x20\x00\xDA\x12\x81\x00\xD9\xF1\xDB\x40\xA4\xA6\xAF'
@@ -41,15 +41,15 @@ def main():
     print("loaded font len =",len(d_font))
 
     i2c = smbus.SMBus(1)                    # I2C用オブジェクト生成
-    i2c.write_i2c_block_data(sd1306, d_mode_i, list(d_init)) 
-    i2c.write_i2c_block_data(sd1306, d_mode_i, list(d_home))
+    i2c.write_i2c_block_data(ssd1306, d_mode_i, list(d_init)) 
+    i2c.write_i2c_block_data(ssd1306, d_mode_i, list(d_home))
     for x in range(8)[::-1]:
         for y in range(16):
             i = ord(disp_port[y][x]) - 32
             if i > 0 and i*8+8 <= len(d_font):
-                i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_font[i*8:i*8+8]))
+                i2c.write_i2c_block_data(ssd1306, d_mode_w, list(d_font[i*8:i*8+8]))
             else:
-                i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_font[0:8]) )
+                i2c.write_i2c_block_data(ssd1306, d_mode_w, list(d_font[0:8]) )
     sleep(3)
     for y in range(8)[::-1]:
         for x in range(16)[::-1]:
@@ -61,9 +61,9 @@ def main():
                     for k in range(8):
                         c += ((d_font[i*8+7-k] >> j) & 0x01) << k
                     font += c.to_bytes(1,'little')
-                i2c.write_i2c_block_data(sd1306, d_mode_w, list(font))
+                i2c.write_i2c_block_data(ssd1306, d_mode_w, list(font))
             else:
-                i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_font[0:8]))
+                i2c.write_i2c_block_data(ssd1306, d_mode_w, list(d_font[0:8]))
     sleep(3)
             
 def load_font():
