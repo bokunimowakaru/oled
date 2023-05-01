@@ -12,7 +12,7 @@
 ##############################
 
 disp_port = [\
-'　こんにちは　　','　ラズベリーパイ','　　　　　　　　','ＯＬＥＤドライバ',\
+'こんにちは　　　','　ラズベリーパイ','　　　　　　　　','ＯＬＥＤドライバ',\
 '　　ｆｏｒ　　　','　Ｃパイソン　　','　　　　　　　　','ｈｔｔｐｓ：／／',\
 'ｇｉｔ．ｂｏｋｕ','ｎｉｍｏ．ｃｏｍ','／ｏｌｅｄ／　　','　　　　　　　　',\
 '　ｂｙ　国野　亘','　　くにのわたる','　　Ｗａｔａｒｕ','　　ＫＵＮＩＮＯ',\
@@ -26,21 +26,16 @@ disp_land = [\
 ]
 
 sd1306 = 0x3C                           # OLED SD1306のI2Cアドレス
-d_mode_i = 0x00
-d_mode_w = 0x40
+d_mode_i = 0x00                         # OLED設定モード
+d_mode_w = 0x40                         # OLED描画モード
 d_init = b'\xAE\xD5\x80\x8D\x14\x20\x00\xDA\x12\x81\x00\xD9\xF1\xDB\x40\xA4\xA6\xAF'
 d_home = b'\x21\x00\x7F\x22\x00\x07'
-d_fontx2_map = list()
+d_fontx2_map = list()                   # 美咲フォント用メモリマップ
 
-import smbus
+import smbus                            # I2Cインタフェース
 from time import sleep                  # timeからsleepを組み込む
 
 def main():
-    d_font = load_font()
-    print("loaded ASCII fonts, len =",len(d_font))
-    d_fontx2 = load_fontx2()
-    print('loaded KANJI fontx2 len =',len(d_fontx2))
-
     i2c = smbus.SMBus(1)                    # I2C用オブジェクト生成
     i2c.write_i2c_block_data(sd1306, d_mode_i, list(d_init)) 
     i2c.write_i2c_block_data(sd1306, d_mode_i, list(d_home))
@@ -48,15 +43,19 @@ def main():
         for y in range(16):
             b = disp_port[y][x].encode('CP932') # シフトJISコードに変換
             c = int.from_bytes(b, 'big')        # 整数に変換
-            address = None
-            for i in range(len(d_fontx2_map)):
-                if c >= d_fontx2_map[i][0] and c <= d_fontx2_map[i][1]:
-                   address = d_fontx2_map[i][2] + 8 * (c - d_fontx2_map[i][0])
-                   break
-            if address is not None: # シフトJIS処理
+            p_min = 0
+            p_max = len(d_fontx2_map) - 1
+            while(p_min < p_max):
+                p = (p_max - p_min)//2 + p_min
+                if c >= d_fontx2_map[p][0]:
+                    p_min = p
+                if c <= d_fontx2_map[p][1]:
+                    p_max = p
+            if(p_min == p_max):
+                address = d_fontx2_map[p_min][2] + 8 * (c - d_fontx2_map[p_min][0])
                 i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_fontx2[address:address+8]))
                 # print(disp_port[y][x],hex(c),hex(address),hex(address//8),d_fontx2[address:address+8])
-            else: # ASCII処理
+            else:
                 i = ord(disp_port[y][x]) - 32
                 if i > 0 and i*8+8 <= len(d_font):
                     i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_font[i*8:i*8+8]))
@@ -67,12 +66,16 @@ def main():
         for x in range(16)[::-1]:
             b = disp_land[y][x].encode('CP932') # シフトJISコードに変換
             c = int.from_bytes(b, 'big')        # 整数に変換
-            address = None
-            for i in range(len(d_fontx2_map)):
-                if c >= d_fontx2_map[i][0] and c <= d_fontx2_map[i][1]:
-                   address = d_fontx2_map[i][2] + 8 * (c - d_fontx2_map[i][0])
-                   break
-            if address is not None: # シフトJIS処理
+            p_min = 0
+            p_max = len(d_fontx2_map) - 1
+            while(p_min < p_max):
+                p = (p_max - p_min)//2 + p_min
+                if c >= d_fontx2_map[p][0]:
+                    p_min = p
+                if c <= d_fontx2_map[p][1]:
+                    p_max = p
+            if(p_min == p_max):
+                address = d_fontx2_map[p_min][2] + 8 * (c - d_fontx2_map[p_min][0])
                 font = b''
                 for j in range(8):
                     c = 0x00
@@ -93,7 +96,8 @@ def main():
                 else:
                     i2c.write_i2c_block_data(sd1306, d_mode_w, list(d_font[0:8]))
     sleep(3)
-            
+    i2c.close()
+
 def load_font():
     return b'\
 \x00\x00\x00\x00\x00\x00\x00\x00\x10\x10\x10\x10\x10\x00\x10\x00\
@@ -165,6 +169,10 @@ def load_fontx2():
         address += (code_end - code_start + 1) * 8
     return buf[18 + 4 * map_size:]
 
+d_font = load_font()
+print("loaded ASCII fonts, len =",len(d_font))
+d_fontx2 = load_fontx2()
+print('loaded KANJI fontx2 len =',len(d_fontx2))
 while True:
     main()
 
